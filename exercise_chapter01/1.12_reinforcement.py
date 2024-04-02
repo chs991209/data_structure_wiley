@@ -2,6 +2,7 @@
 # Write a short Python function, is.multiple(n , m), that takes two integer
 # values and returns True if n is a multiple of m, that is, n = mi for some
 # integer i, and False otherwise.
+import datetime
 import math
 import random
 
@@ -373,14 +374,13 @@ def norm(v, p=2):
         return sum([abs(vector) ** p for vector in v]) ** (1 / p)
 
 
-
-
 # print(norm([3, 3, 3], 3))
 # print(81 ** (1/3))
 
 
 # P-1.29
 import time
+
 
 def random_string(strings):
     start_time = time.time()
@@ -403,3 +403,217 @@ def random_string(strings):
 # print(random_string(['c', 'a', 't', 'd', 'o', 'g']))
 
 
+# R-1.30
+def divide_by_two():
+    integer_input = input('Enter a number larger than 2: ')
+    if int(integer_input) > 2:
+        # input = 2 ** k로 간주한다
+        k = math.log2(int(integer_input))
+    else:
+        raise ArithmeticError('Invalid input: Enter a number larger than 2')
+
+    return math.floor(k)
+
+
+# print(divide_by_two())
+
+
+# P-1.31
+def make_change(charged, given):
+    # charged, given은 실수여야 한다.
+    count_change = 0
+    if charged > given:
+        raise ValueError('Charged must be greater than given')
+    elif charged < given:
+        change = round(given - charged, 2)
+        # change는 소수점 이하 2자리여야 한다.
+        tuple_modf = math.modf(change)
+        # 달러 지폐 부분인 정수부만 더합니다.
+        count_change += tuple_modf[1]
+
+        if tuple_modf[0] == 0:
+            return int(count_change)
+        else:
+            # 1, 5, 10, 25, 50 센트가 존재
+            # 100센트는 1달러와 동일한 값이므로 달러와 같은 개수로 계산되므로 무시합니다.
+            # 0.33과 같은 소수부를 정수 33으로 바꿉니다.
+            int_under_dot = int(tuple_modf[0] * 100)
+            # int_under_dot은 1 이상 99 이하입니다.
+            # int_under_dot / 50 => 1 or 0
+            print('First Int', int_under_dot)
+            if int_under_dot // 50 == 1:
+                count_change += 1
+                int_under_dot -= 50  # 0 이상 49 미만입니다.
+
+            # int_under_dot => 0 이상 49 미만입니다.
+            if int_under_dot // 25 == 1:
+                count_change += 1
+                int_under_dot -= 25  # 0 이상 25 미만입니다.
+
+            # int_under_dot = > 0 이상 25 미만입니다.
+            if int_under_dot // 10 >= 1:
+                count_change += int_under_dot // 10
+                int_under_dot -= 10 * (int_under_dot // 10)  # 0 이상 10 미만입니다.
+                print('Int_under_dot: ', int_under_dot)
+
+            # int_under_dot = > 0 이상 10 미만입니다.
+            if int_under_dot // 5 == 1:
+                count_change += 1
+                int_under_dot -= 5  # 0 이상 5 미만입니다.
+
+            if int_under_dot != 0:
+                count_change += int_under_dot
+
+            return int(count_change)
+
+
+# print(make_change(2.5, 4.83))
+
+
+# P-1.32
+
+# GIL을 활용하면 쉽게 만들 수 있다.
+def calculator():
+    while True:
+        num1 = float(input('Enter a float'))
+        operator = input('Enter an operator: ')
+        num2 = float(input('Enter another float'))
+        operator2 = input('Enter an operator: ')
+
+        if operator == '+':
+            result = num1 + num2
+        if operator == '-':
+            result = num1 - num2
+
+        if operator.lower() == 'x' or operator.lower() == '*':
+            result = num1 * num2
+
+        if operator == '/':
+            result = num1 / num2
+
+        if operator2 == '=':
+            print('Result is', result)
+            break
+
+
+# calculator()
+
+# P-1.34
+def repeat_sentences_simulate(sentence):
+    start_time = time.time()
+    random_sentence_indices = set()
+    random_count = 0
+    while random_count < 8:
+        random_idx = random.randint(1, 100)
+        if random_idx not in random_sentence_indices:
+            random_sentence_indices.add(random_idx)
+            random_count += 1
+
+    lower_alphabets = [chr(code) for code in range(ord('a'), ord('z') + 1)]
+    upper_alphabets = [chr(code) for code in range(ord('A'), ord('Z') + 1)]
+    # ascii_of_all_alphabets = upper_alphabets + lower_alphabets
+
+    len_sentence = len(sentence)
+
+    for i in range(1, 101):
+        if i not in random_sentence_indices:
+            print(f'Number {i}: {sentence}', flush=True)
+        else:
+            done = False
+            while not done:
+                lower_alphabets_copy = lower_alphabets[:]
+                upper_alphabets_copy = upper_alphabets[:]
+                random_index = random.randint(0, len_sentence - 1)
+                random_string_el = sentence[random_index]
+                if random_string_el.islower():
+                    lower_alphabets_copy.remove(random_string_el)
+                    random_lower_alpha = random.choice(lower_alphabets_copy)
+                    if random_index == len_sentence - 1:
+                        modified_sentence = sentence[:random_index] + random_lower_alpha
+                    else:
+                        modified_sentence = sentence[:random_index] + random_lower_alpha + sentence[random_index + 1:]
+                    print(f'Number {i}: {modified_sentence}', flush=True)
+                    done = True
+                elif random_string_el.isupper():
+                    upper_alphabets_copy.remove(random_string_el)
+                    random_upper_alpha = random.choice(upper_alphabets_copy)
+                    if random_index == len_sentence - 1:
+                        modified_sentence = sentence[:random_index] + random_upper_alpha
+                    else:
+                        modified_sentence = sentence[:random_index] + random_upper_alpha + sentence[random_index + 1:]
+                    print(f'Number {i}: {modified_sentence}', flush=True)
+                    done = True
+    end_time = time.time()
+    print('The time has been spent: {} sec'.format(end_time - start_time))
+
+
+# Test the function with the given sentence
+
+
+# "I will never spam my friends again."
+
+# repeat_sentences_simulate('I will never spam my friends again.')
+
+
+# P-1.35
+def birthday_paradox():
+    def birthday_convert(birth_list, birth_month, birth_day):
+        if birth_month > 9:
+            if birth_day > 9:
+                birth_list.append("%d%d" % (birth_month, birth_day))
+            else:
+                birth_list.append("%d0%d" % (birth_month, birth_day))
+
+        else:
+            if birth_day > 9:
+                birth_list.append("0%d%d" % (birth_month, birth_day))
+            else:
+                birth_list.append("0%d0%d" % (birth_month, birth_day))
+
+    birthday_duplication_dict = {'ppl_under24': 0, 'ppl_over23': 0}
+    n = 1
+    while n <= 20:
+        # 사람 수가 바뀔 때마다 랜덤 생성 list 초기화
+        birthday_list = []
+        for k in range(5 * n):
+            # 랜덤 월 생성 초기화
+            random_birthmonth = random.randint(1, 12)
+            if random_birthmonth in (1, 3, 5, 7, 8, 10, 12):
+                random_birthday = random.randint(1, 31)
+                birthday_convert(birthday_list, random_birthmonth, random_birthday)
+
+            elif random_birthmonth in (4, 6, 9, 11):
+                random_birthday = random.randint(1, 30)
+                birthday_convert(birthday_list, random_birthmonth, random_birthday)
+
+            else:
+                random_birthday = random.randint(1, 29)
+                if random_birthday > 9:
+                    birthday_list.append("02%d" % random_birthday)
+                else:
+                    birthday_list.append("020%d" % random_birthday)
+        print(birthday_list)
+        if n >= 5:
+            if len(birthday_list) == len(set(birthday_list)):
+                birthday_duplication_dict['ppl_over23'] += 0
+            else:
+                birthday_duplication_dict['ppl_over23'] += 1
+
+        else:
+            if len(birthday_list) == len(set(birthday_list)):
+                birthday_duplication_dict['ppl_under24'] += 0
+            else:
+                birthday_duplication_dict['ppl_under24'] += 1
+
+        n += 1
+    birthday_duplication_percentage_under24 = float(birthday_duplication_dict['ppl_under24'] / 4)
+    birthday_duplication_percentage_over23 = float(birthday_duplication_dict['ppl_over23'] / 16)
+    print(">>>Birthday duplicated at least two time test result"
+          "\n>>>When number of ppl under 24: %f\n"
+          ">>>When number of ppl over 23: %f" % (birthday_duplication_percentage_under24,
+                                                 birthday_duplication_percentage_over23))
+    if birthday_duplication_percentage_over23 > 0.5:
+        print(">>>>>>Paradox has been proved")
+
+
+# birthday_paradox()
