@@ -617,3 +617,22 @@ def birthday_paradox():
 
 
 # birthday_paradox()
+
+
+# R-1.36
+def check_duplicated_counts():
+    words_list = input('Enter the words separated by whitespace:\n>>>' + ' ')
+    words_split = words_list.split(' ')
+    words_dict = {}
+    for word in words_split:
+        if word in words_dict:
+            words_dict[word] += 1
+        else:
+            words_dict[word] = 1
+    for key, value in words_dict.items():
+        print("word: {}, count: {}".format(key, value))
+
+    return True
+
+
+# check_duplicated_counts()
